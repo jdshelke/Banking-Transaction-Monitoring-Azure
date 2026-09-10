@@ -1,0 +1,5 @@
+# Python cache
+__pycache__/
+*.py[cod]
+dag/airflow_logs/
+dataset/Banking_Transactions_Dataset/

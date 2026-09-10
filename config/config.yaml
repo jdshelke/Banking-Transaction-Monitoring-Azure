@@ -1,0 +1,11 @@
+mysql:
+  host: 192.168.0.100
+  port: 3306
+  database: banking
+  username: banking_user
+  password: jdshelke
+  driver: com.mysql.cj.jdbc.Driver
+
+hdfs:
+  namenode: hdfs://localhost:9000
+  base_path: /user/jdshelke/projects/Banking-Transaction-Monitoring/data
