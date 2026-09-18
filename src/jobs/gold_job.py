@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
 
 import argparse
-from src.readers.hive_reader import HiveReader
+from src.readers.batch_delta_table_reader import BatchDeltaTableReader
 from src.writers.gold_writer import GoldWriter
 
 from src.transformations.gold import (
@@ -19,26 +19,25 @@ class GoldJob:
     def __init__(self, spark):
         self.spark = spark
 
-        self.hive_reader = HiveReader(self.spark, "silver")
+        self.batch_delta_table_reader = BatchDeltaTableReader(self.spark)
         self.gold_writer = GoldWriter(self.spark)
 
     def process_table(self, table_name, transform_function, required_tables):
 
         table_dfs = {}
 
-        for table, database in required_tables.items():
-            table_dfs[f"{table}_df"] = self.hive_reader.read_table(table, database)
+        for table, layer in required_tables.items():
+            table_dfs[f"{table}_df"] = self.batch_delta_table_reader.read_table(table, layer)
 
         gold_df = transform_function(**table_dfs)
 
-        self.gold_writer.write_hive_table(gold_df, table_name)
+        self.gold_writer.write_delta_table(gold_df, table_name, "gold")
 
 
 if __name__ == "__main__":
 
     spark = SparkSession.builder \
         .appName("BankingTransactionMonitoring-GoldJob") \
-        .enableHiveSupport() \
         .getOrCreate()
 
 
@@ -94,7 +93,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--table", required=True, help="Parquet files to Hive tables")
+    parser.add_argument("--table", required=True, help="Silver delta table to process")
 
     args = parser.parse_args()
 

@@ -1,10 +1,19 @@
 class BronzeWriter:
-    def __init__(self, namenode, base_path):
-        self.namenode = namenode
+    def __init__(self, base_path):
         self.base_path = base_path
 
-    def write_parquet(self, df, table_name, layer):
-        df.write \
-            .format("parquet") \
-            .mode("append") \
-            .save(f"{self.namenode}{self.base_path}/{layer}/{table_name}")
+    def write_delta(self, df, table_name, layer):
+        checkpoint_path = f"{self.base_path}/autoloader/checkpoint/{layer}/{table_name}"
+        write_path = f"{self.base_path}/{layer}/{table_name}"
+        bronze_table = f"banking.{layer}.{table_name}"
+        
+        df.printSchema()
+
+        query = df.writeStream \
+            .format("delta") \
+            .outputMode("append") \
+            .option("checkpointLocation", checkpoint_path) \
+            .trigger(once=True) \
+            .toTable(bronze_table)
+        
+        query.awaitTermination()

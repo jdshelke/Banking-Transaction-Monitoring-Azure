@@ -1,10 +1,12 @@
-from pyspark.sql.functions import col, when
+from pyspark.sql.functions import col, when, lower
 from src.utils import data_quality
 
 def transform(df):
-    dedup_df = data_quality.remove_duplicates(df, ["customer_id"])
+    drop_clumns_df = data_quality.drop_columns(df, ["_rescued_data"])
 
-    drop_null_df = data_quality.drop_null_records(dedup_df, ["customer_id"])
+    drop_null_df = data_quality.drop_null_records(drop_clumns_df, ["customer_id"])
+
+    # dedup_df = data_quality.remove_duplicates(drop_null_df, "customer_id")
 
     trim_string_df = data_quality.trim_columns(drop_null_df, ["name", "gender", "city", "state", "email", "occupation"])
 
@@ -13,9 +15,9 @@ def transform(df):
                                                       .otherwise(col("credit_score"))                      
                                                       )
     
-    standardize_gender = credit_score_validate.withColumn("gender", when(col("gender") == "male", "M")
-                                                                          .when(col("gender") == "female", "F")
-                                                                          .otherwise(None)
+    standardize_gender = credit_score_validate.withColumn("gender",when(lower(col("gender")) == "male", "M")
+                                                                .when(lower(col("gender")) == "female", "F")
+                                                                .otherwise(None)
                                                                 )
     
     cleaned_customer_df = data_quality.fill_null_value(standardize_gender, "Unknown", ["name", "city", "state", "phone", 

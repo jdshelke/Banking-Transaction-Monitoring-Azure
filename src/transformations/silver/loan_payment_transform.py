@@ -1,9 +1,11 @@
 from src.utils import data_quality
 
 def transform(df):
-    dedup_df = data_quality.remove_duplicates(df, ["payment_id"])
+    drop_clumns_df = data_quality.drop_columns(df, ["_rescued_data"])
 
-    drop_null_df = data_quality.drop_null_records(dedup_df, ["payment_id", "loan_id", "payment_date", "amount_paid", "late_payment_flag"])
+    drop_null_df = data_quality.drop_null_records(drop_clumns_df, ["payment_id", "loan_id", "payment_date", "amount_paid", "late_payment_flag"])
+
+    # dedup_df = data_quality.remove_duplicates(drop_null_df, "payment_id")
 
     amount_valid_df = data_quality.validate_non_negative(drop_null_df, ["amount_paid", "principal_component", "interest_component"])
 

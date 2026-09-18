@@ -1,9 +1,18 @@
-from pyspark.sql.functions import col, trim, lower, upper, current_date
+from pyspark.sql.functions import col, trim, lower, upper, current_date, row_number
+from pyspark.sql.window import Window
 from functools import reduce
 from operator import and_
 
-def remove_duplicates(df, columns):
-    return df.dropDuplicates([*columns])
+def drop_columns(df, columns):
+    return df.drop(*columns)
+
+def remove_duplicates(df, id_column):
+    window_spec = Window.partitionBy(id_column).orderBy(col("updated_at").desc())
+    df = df.withColumn("rn", row_number().over(window_spec)) \
+           .filter(col("rn") == 1) \
+           .drop("rn")
+
+    return df
 
 def drop_null_records(df, columns):
     return df.dropna(subset=[*columns])

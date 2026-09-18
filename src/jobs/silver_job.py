@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession
 
 import argparse
 from src.utils import config_reader
-from src.readers.hdfs_reader import HDFSReader
+from src.readers.delta_table_reader import DeltaTableReader
 from src.writers.silver_writer import SilverWriter
 
 from src.transformations.silver import (
@@ -20,19 +20,19 @@ from src.transformations.silver import (
 
 
 class SilverJob:
-    def __init__(self, spark, hdfs_config):
+    def __init__(self, spark, adls_config):
         self.spark = spark
-        self.hdfs_config = hdfs_config
+        self.adls_config = adls_config
 
-        self.hdfs_reader = HDFSReader(self.spark, self.hdfs_config["base_path"])
-        self.silver_writer = SilverWriter(self.spark)
+        self.delta_table_reader = DeltaTableReader(self.spark)
+        self.silver_writer = SilverWriter(self.spark, self.adls_config["base_path"])
 
     def process_table(self, table_name, transform_function):
-        bronze_df = self.hdfs_reader.read_table(table_name, "bronze")
+        bronze_df = self.delta_table_reader.read_table(table_name, "bronze")
 
         silver_df = transform_function(bronze_df)
 
-        self.silver_writer.write_hive_table(silver_df, table_name)
+        self.silver_writer.write_delta_table(silver_df, table_name, "silver")
 
 
 if __name__ == "__main__":
@@ -43,12 +43,11 @@ if __name__ == "__main__":
 
     spark = SparkSession.builder \
         .appName("BankingTransactionMonitoring-SilverJob") \
-        .enableHiveSupport() \
         .getOrCreate()
 
-    hdfs_config = config["hdfs"]
+    adls_config = config["adls"]
 
-    silver_job = SilverJob(spark, hdfs_config)
+    silver_job = SilverJob(spark, adls_config)
 
     transformations = {
         "customers": customer_transform.transform,

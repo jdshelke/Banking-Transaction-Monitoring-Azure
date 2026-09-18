@@ -1,9 +1,11 @@
 from src.utils import data_quality
 
 def transform(df):
-    dedup_df = data_quality.remove_duplicates(df, ["card_txn_id"])
+    drop_clumns_df = data_quality.drop_columns(df, ["_rescued_data"])
 
-    drop_null_df = data_quality.drop_null_records(dedup_df, ["card_txn_id", "card_id", "txn_date", "amount", "is_fraud"])
+    drop_null_df = data_quality.drop_null_records(drop_clumns_df, ["card_txn_id", "card_id", "txn_date", "amount", "is_fraud"])
+
+    # dedup_df = data_quality.remove_duplicates(drop_null_df, "card_txn_id")
 
     trim_string_df = data_quality.trim_columns(drop_null_df, ["merchant_category"])
 

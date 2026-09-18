@@ -2,9 +2,11 @@ from pyspark.sql.functions import col
 from src.utils import data_quality
 
 def transform(df):
-    dedup_df = data_quality.remove_duplicates(df, ["card_id"])
+    drop_clumns_df = data_quality.drop_columns(df, ["_rescued_data"])
 
-    drop_null_df = data_quality.drop_null_records(dedup_df, ["card_id", "customer_id", "account_id"])
+    drop_null_df = data_quality.drop_null_records(drop_clumns_df, ["card_id", "customer_id", "account_id"])
+
+    # dedup_df = data_quality.remove_duplicates(drop_null_df, "card_id")
 
     trim_string_df = data_quality.trim_columns(drop_null_df, ["card_type", "status"])
 
