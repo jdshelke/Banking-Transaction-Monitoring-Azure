@@ -31,6 +31,8 @@ The dataset contains:
 
 ## 🏗️ Architecture
 
+![Banking Transaction Monitoring Architecture](images/banking-architecture.png)
+
 ``` text
 Banking Transactions Dataset
             |
@@ -58,6 +60,8 @@ Banking Transactions Dataset
 ```
 
 ## 1. Source System -- Local MySQL
+
+![MySQL Source Tables](images/banking-mysql-source-tables.png)
 
 The dataset CSV files are loaded into source tables in a local Windows
 MySQL database.
@@ -138,6 +142,8 @@ records from the local MySQL source.
 
 ## 4. Azure Data Factory
 
+![ADF Incremental Pipeline](images/banking-adf-incremental-pipeline.png)
+
 Azure Data Factory is used to extract data from the local MySQL source
 and copy it to ADLS Gen2.
 
@@ -170,21 +176,11 @@ ADF is responsible for:
 
 ## 5. ADLS Gen2 Storage
 
+![ADLS Gen2 Storage Structure](images/banking-adls-folder-structure.png)
+
 ADLS Gen2 is used as the data lake storage layer.
 
 The storage is organized into:
-
-``` text
-landing/
-bronze/
-silver/
-gold/
-autoloader/
-    schema/
-    checkpoint/
-```
-
-Example:
 
 ``` text
 banking-transaction-monitoring/
@@ -218,6 +214,8 @@ banking-transaction-monitoring/
 ```
 
 ## 6. Bronze Layer
+
+![Databricks Unity Catalog Tables](images/banking-unity-catalog-tables.png)
 
 Bronze stores the incoming data as Delta tables with minimal
 transformation.
@@ -414,6 +412,8 @@ performance metrics.
 
 ### `customer_risk_profile`
 
+![Customer Risk Profile](images/banking-gold-customer-risk-profile.png)
+
 Sources:
 
 ``` text
@@ -431,6 +431,8 @@ risk reason.
 
 The complete data pipeline is orchestrated using **Azure Data Factory** and a
 single **Azure Databricks Job**.
+
+![Databricks Job Orchestration](images/banking-databricks-job.gif)
 
 ```text
 1. Azure Data Factory
