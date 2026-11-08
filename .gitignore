@@ -3,3 +3,6 @@ __pycache__/
 *.py[cod]
 dag/airflow_logs/
 dataset/Banking_Transactions_Dataset/
+dataset/Initial_load/
+dataset/incremental_load/
+temp/

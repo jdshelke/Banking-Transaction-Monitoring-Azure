@@ -1,0 +1,16 @@
+bundle:
+  name: Banking-Transaction-Monitoring-Azure
+
+include:
+  - resources/*.yml
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: https://adb-7405617721909316.16.azuredatabricks.net
+
+  prod:
+    workspace:
+      host: https://adb-7405618945394278.18.azuredatabricks.net
+      root_path: /Workspace/Shared/${bundle.name}/${bundle.target}

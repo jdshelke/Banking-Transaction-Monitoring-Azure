@@ -459,7 +459,6 @@ single **Azure Databricks Job**.
                Silver → Gold
 ```
 
-
 Databricks jobs are parameterized by table name, allowing the same
 modular PySpark jobs to process multiple source tables.
 
@@ -469,6 +468,27 @@ Example:
 --table accounts
 --table customers
 --table transactions
+```
+
+## 🔄 CI/CD & Deployment via Databricks Asset Bundles (DAB)
+
+![Azure DevOps Pipeline](images/DevOps_CICD.png)
+
+To ensure production parity, prevent UI drift, and eliminate manual deployments, code and workflow configurations are managed as Infrastructure as Code (IaC) using **Databricks Asset Bundles (DAB)** and deployed automatically through **Azure DevOps Pipelines**.
+
+```text
+[ Git Repo: main ]
+       │
+       ▼ (Automated Git Push / PR Merge)
+[ Azure DevOps CI/CD Pipeline ]
+       │
+       │ (Authenticates via Entra ID Service Principal)
+       ▼
+[ Databricks CLI / DAB Engine ]
+       │
+       ├─► Validates Bundle Config (databricks bundle validate)
+       ├─► Syncs Source Files (/Workspace/Shared/.../prod/files/)
+       └─► Deploys / Updates Workflow DAG (banking_transaction_monitoring_pipeline)
 ```
 
 ## 🧩 Technology Stack
@@ -486,7 +506,10 @@ Example:
 | Delta Lake | Reliable table storage |
 | Unity Catalog | Catalog and access management |
 | SQL | Source and analytical queries |
-| Git/GitHub | Version control |
+| Databricks Asset Bundles (DAB) | Infrastructure & Workflow as Code
+| Azure DevOps Pipelines | Automated CI/CD build & deployment
+| Microsoft Entra ID (Azure AD) | Service Principal automated authentication
+| Git/Azure Repos | Version control
 
 
 ## 🛡️ Key Data Engineering Concepts Demonstrated
@@ -509,7 +532,9 @@ Example:
 -   External Delta tables
 -   Parameterized Databricks jobs
 -   Modular PySpark application design
--   Git/GitHub version control
+-   Databricks Asset Bundles (DAB)
+-   CI/CD Pipeline Design using Azure DevOps
+-   Git / Azure Repos version control
 
 ## 🚀 End-to-End Flow
 

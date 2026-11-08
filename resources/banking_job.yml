@@ -1,0 +1,274 @@
+resources:
+  jobs:
+    banking_transaction_monitoring_pipeline:
+      name: banking_transaction_monitoring_pipeline
+
+      tasks:
+        # ---------------- Bronze Tasks ----------------
+        - task_key: bronze_accounts
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/bronze_job.py
+            parameters:
+              - --table
+              - accounts
+
+        - task_key: bronze_branches
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/bronze_job.py
+            parameters:
+              - --table
+              - branches
+
+        - task_key: bronze_card_transactions
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/bronze_job.py
+            parameters:
+              - --table
+              - card_transactions
+
+        - task_key: bronze_cards
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/bronze_job.py
+            parameters:
+              - --table
+              - cards
+
+        - task_key: bronze_customers
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/bronze_job.py
+            parameters:
+              - --table
+              - customers
+
+        - task_key: bronze_employees
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/bronze_job.py
+            parameters:
+              - --table
+              - employees
+
+        - task_key: bronze_loan_payments
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/bronze_job.py
+            parameters:
+              - --table
+              - loan_payments
+
+        - task_key: bronze_loans
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/bronze_job.py
+            parameters:
+              - --table
+              - loans
+
+        - task_key: bronze_support_tickets
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/bronze_job.py
+            parameters:
+              - --table
+              - support_tickets
+
+        - task_key: bronze_transactions
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/bronze_job.py
+            parameters:
+              - --table
+              - transactions
+
+        # ---------------- Silver Tasks ----------------
+        - task_key: silver_accounts
+          depends_on:
+            - task_key: bronze_accounts
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/silver_job.py
+            parameters:
+              - --table
+              - accounts
+
+        - task_key: silver_branches
+          depends_on:
+            - task_key: bronze_branches
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/silver_job.py
+            parameters:
+              - --table
+              - branches
+
+        - task_key: silver_card_transactions
+          depends_on:
+            - task_key: bronze_card_transactions
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/silver_job.py
+            parameters:
+              - --table
+              - card_transactions
+
+        - task_key: silver_cards
+          depends_on:
+            - task_key: bronze_cards
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/silver_job.py
+            parameters:
+              - --table
+              - cards
+
+        - task_key: silver_customers
+          depends_on:
+            - task_key: bronze_customers
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/silver_job.py
+            parameters:
+              - --table
+              - customers
+
+        - task_key: silver_employees
+          depends_on:
+            - task_key: bronze_employees
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/silver_job.py
+            parameters:
+              - --table
+              - employees
+
+        - task_key: silver_loan_payments
+          depends_on:
+            - task_key: bronze_loan_payments
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/silver_job.py
+            parameters:
+              - --table
+              - loan_payments
+
+        - task_key: silver_loans
+          depends_on:
+            - task_key: bronze_loans
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/silver_job.py
+            parameters:
+              - --table
+              - loans
+
+        - task_key: silver_support_tickets
+          depends_on:
+            - task_key: bronze_support_tickets
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/silver_job.py
+            parameters:
+              - --table
+              - support_tickets
+
+        - task_key: silver_transactions
+          depends_on:
+            - task_key: bronze_transactions
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/silver_job.py
+            parameters:
+              - --table
+              - transactions
+
+        # ---------------- Gold Tasks ----------------
+        - task_key: gold_card_fraud_summary
+          depends_on:
+            - task_key: silver_cards
+            - task_key: silver_card_transactions
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/gold_job.py
+            parameters:
+              - --table
+              - card_fraud_summary
+
+        - task_key: gold_loan_payment_metrics
+          depends_on:
+            - task_key: silver_loans
+            - task_key: silver_loan_payments
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/gold_job.py
+            parameters:
+              - --table
+              - loan_payment_metrics
+
+        - task_key: gold_account_transaction_summary
+          depends_on:
+            - task_key: silver_accounts
+            - task_key: silver_transactions
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/gold_job.py
+            parameters:
+              - --table
+              - account_transaction_summary
+
+        - task_key: gold_branch_performance
+          depends_on:
+            - task_key: silver_transactions
+            - task_key: silver_branches
+            - task_key: gold_loan_payment_metrics
+            - task_key: silver_loans
+            - task_key: silver_accounts
+            - task_key: silver_employees
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/gold_job.py
+            parameters:
+              - --table
+              - branch_performance
+
+        - task_key: gold_customer_transaction_summary
+          depends_on:
+            - task_key: silver_customers
+            - task_key: silver_accounts
+            - task_key: silver_transactions
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/gold_job.py
+            parameters:
+              - --table
+              - customer_transaction_summary
+
+        - task_key: gold_customer_risk_profile
+          depends_on:
+            - task_key: gold_account_transaction_summary
+            - task_key: gold_customer_transaction_summary
+            - task_key: gold_loan_payment_metrics
+            - task_key: silver_customers
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/gold_job.py
+            parameters:
+              - --table
+              - customer_risk_profile
+
+        - task_key: gold_daily_transaction_metrics
+          depends_on:
+            - task_key: silver_transactions
+          existing_cluster_id: 1108-175921-o8stcm8r
+          spark_python_task:
+            python_file: ../src/jobs/gold_job.py
+            parameters:
+              - --table
+              - daily_transaction_metrics
+
+      queue:
+        enabled: true

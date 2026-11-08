@@ -1,0 +1,38 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: databricks-prod-vars
+
+steps:
+  - checkout: self
+    displayName: 'Checkout Repository Code'
+
+  - script: |
+      curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+      echo "Databricks CLI version:"
+      databricks --version
+    displayName: 'Install Databricks CLI'
+
+  - script: |
+      databricks bundle validate -t prod
+    displayName: 'Validate Databricks Asset Bundle'
+    env:
+      DATABRICKS_HOST: $(DATABRICKS_HOST)
+      ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+      ARM_TENANT_ID: $(ARM_TENANT_ID)
+
+  - script: |
+      databricks bundle deploy -t prod
+    displayName: 'Deploy Bundle to Production'
+    env:
+      DATABRICKS_HOST: $(DATABRICKS_HOST)
+      ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+      ARM_TENANT_ID: $(ARM_TENANT_ID)
