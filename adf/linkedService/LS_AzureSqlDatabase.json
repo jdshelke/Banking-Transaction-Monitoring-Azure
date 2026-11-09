@@ -1,0 +1,24 @@
+{
+	"name": "LS_AzureSqlDatabase",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "sqlsrv-data-engineer-dev.database.windows.net",
+			"database": "sqldb-data-engineer-dev",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "sqldevadmin",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "LS_AzureKeyVault_dev",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "azureSQLDBPassword"
+			}
+		}
+	}
+}

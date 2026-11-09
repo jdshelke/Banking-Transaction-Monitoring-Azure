@@ -1,0 +1,13 @@
+{
+	"name": "DS_Source_MySqlTable_Banking",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Source_MySql_Dev",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "MySqlTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

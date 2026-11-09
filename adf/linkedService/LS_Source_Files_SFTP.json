@@ -1,0 +1,21 @@
+{
+	"name": "LS_Source_Files_SFTP",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "Sftp",
+		"typeProperties": {
+			"host": "localhost",
+			"port": 22,
+			"skipHostKeyValidation": false,
+			"hostKeyFingerprint": "ssh-ed25519 32 31:31:6b:00:36:a7:16:a4:e8:25:7a:73:0e:69:af:36",
+			"authenticationType": "Basic",
+			"userName": "sftpuser",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJlMTA4NmMxYy05OTE3LTRiZTQtYmMyMC1mYjMyNDM2NjU3MjUiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "self-hosted-integrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

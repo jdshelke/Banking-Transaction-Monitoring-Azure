@@ -1,0 +1,15 @@
+{
+	"name": "ADFdataEngineer-dev",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "ce645e3e-dd76-491f-8fe4-b340ed447550",
+		"tenantId": "22cadbbf-7c92-49e0-9554-7e1f09a6029a"
+	}
+}

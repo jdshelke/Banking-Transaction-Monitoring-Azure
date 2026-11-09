@@ -1,0 +1,11 @@
+{
+	"name": "LS_AzureDataLakeStorage_Banking",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://storageacc1dev.dfs.core.windows.net/"
+		}
+	}
+}

@@ -1,0 +1,57 @@
+{
+	"name": "pl_banking_sftp_to_adls_landing_master",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach table",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.table_list",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"batchCount": 2,
+					"activities": [
+						{
+							"name": "Execute Pipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_banking_sftp_to_adls_parquet_child",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"table_name": {
+										"value": "@item()",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"table_list": {
+				"type": "array",
+				"defaultValue": [
+					"employees",
+					"customers"
+				]
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-11-07T20:00:18Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

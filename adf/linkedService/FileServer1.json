@@ -1,0 +1,24 @@
+{
+	"name": "FileServer1",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "FileServer",
+		"typeProperties": {
+			"host": "F:/Projects/Banking-Transaction-Monitoring-Azure/dataset/incremental_load/",
+			"userId": "laptop-4k3q9bdi\\ram",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "LS_AzureKeyVault_dev",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "sourceFileSystemPass"
+			}
+		},
+		"connectVia": {
+			"referenceName": "self-hosted-integrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

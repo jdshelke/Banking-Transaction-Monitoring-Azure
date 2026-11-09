@@ -1,0 +1,209 @@
+{
+	"name": "pl_banking_sql_data_ingestion",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach table",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.sources",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Lookup Updatedate",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "@concat(\n    'SELECT SOURCE, UPDATEDATE, WATERMARK_COLUMN FROM DBO.SOURCE_LAST_SEND WHERE SOURCE =''', item(),''''\n    )\n",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "DS_AzureSQL",
+									"type": "DatasetReference",
+									"parameters": {
+										"table_name": "source_last_send"
+									}
+								}
+							}
+						},
+						{
+							"name": "Copy data to adls",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "Lookup Updatedate",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "MySqlSource",
+									"query": {
+										"value": "@concat('SELECT * FROM ',activity('Lookup Updatedate').output.firstRow.SOURCE, ' WHERE ', activity('Lookup Updatedate').output.firstRow.WATERMARK_COLUMN, ' > ''', activity('Lookup Updatedate').output.firstRow.UPDATEDATE,'''')",
+										"type": "Expression"
+									}
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Source_MySqlTable_Banking",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Parquet_Landing",
+									"type": "DatasetReference",
+									"parameters": {
+										"folder_name": {
+											"value": "@item()",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@concat(item(), '_', utcNow())",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "Lookup MAX updated_at",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "Copy data to adls",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "MySqlSource",
+									"query": {
+										"value": "@concat(\n    'SELECT MAX(', activity('Lookup Updatedate').output.firstRow.WATERMARK_COLUMN, ') AS MAX_UPDATEDATE FROM ', activity('Lookup Updatedate').output.firstRow.SOURCE\n)",
+										"type": "Expression"
+									}
+								},
+								"dataset": {
+									"referenceName": "DS_Source_MySqlTable_Banking",
+									"type": "DatasetReference"
+								}
+							}
+						},
+						{
+							"name": "Script update watermark table",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "Lookup MAX updated_at",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "LS_AzureSqlDatabase",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "@concat(\n    'UPDATE DBO.SOURCE_LAST_SEND SET UPDATEDATE = ''', activity('Lookup MAX updated_at').output.firstRow.MAX_UPDATEDATE, ''' WHERE SOURCE = ''', activity('Lookup Updatedate').output.firstRow.SOURCE,''''\n)",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"sources": {
+				"type": "array",
+				"defaultValue": [
+					"accounts",
+					"branches",
+					"card_transactions",
+					"cards",
+					"loan_payments",
+					"loans",
+					"support_tickets",
+					"transactions"
+				]
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-11-08T08:42:01Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
